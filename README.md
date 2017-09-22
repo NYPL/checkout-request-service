@@ -1,12 +1,12 @@
 # NYPL Checkout Request Service
 
 [![Build Status](https://travis-ci.org/NYPL/checkout-request-service.svg?branch=master)](https://travis-ci.org/NYPL/checkout-request-service)
-[![Coverage Status](https://coveralls.io/repos/github/NYPL/checkout-request-service/badge.svg?branch=travis)](https://coveralls.io/github/NYPL/checkout-request-service?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/NYPL/checkout-request-service/badge.svg?branch=master)](https://coveralls.io/github/NYPL/checkout-request-service?branch=master)
 
 ## Service Responsibilities
 
 The Checkout Request Service receives a request from an API service or consumer
-and processes the intended action. 
+and processes the implied action for a given hold request. 
 
 Once the service validates the request and saves it to its database instance,
 it sends a new request via NCIP to the Sierra ILS, processes the response
@@ -15,6 +15,8 @@ from Sierra ILS and returns a successful response or an error response.
 After these responsibilities are met, the contract ends and another
 service or consumer takes over or the request terminates in a response from this
 service.
+
+This service works in tandem with the [NYPL Checkin Request Service](https://github.com/NYPL/checkin-request-service).
 
 This package is intended to be used as a Lambda-based Node.js/PHP Checkout Request Service using the 
 [NYPL PHP Microservice Starter](https://github.com/NYPL/php-microservice-starter).
@@ -123,5 +125,5 @@ Before deploying, ensure [configuration files](#configuration) have been properl
 To deploy to an environment, run the corresponding command. For example:
 
 ~~~~
-npm run deploy-dev
+npm run deploy-development
 ~~~~

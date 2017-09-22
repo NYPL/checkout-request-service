@@ -1,0 +1,17 @@
+{
+  "name": "CheckoutRequestService",
+  "version": "0.1.0",
+  "description": "Lambda for the NYPL Checkout Request Service",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "phplint src/*.php src/**/*.php src/**/**/*.php",
+    "test": "node-lambda run -j config/event_sources_testing.json -f config/var_testing.env",
+    "deploy-development": "node-lambda deploy -e development -f config/var_development.env -S config/event_sources_development.json -b {subnets} -g {security-groups}",
+    "deploy-qa": "node-lambda deploy -e qa -f config/var_qa.env -S config/event_sources_qa.json -b {subnets} -g {security-groups}",
+    "deploy-production": "node-lambda deploy -e production -f config/var_production.env -S config/event_sources_production.json -b {subnets} -g {security-groups}",
+  },
+  "repository": {},
+  "keywords": [],
+  "dependencies": {},
+  "devDependencies": {}
+}

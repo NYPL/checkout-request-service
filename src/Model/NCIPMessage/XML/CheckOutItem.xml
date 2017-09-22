@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NCIPMessage version="http://www.niso.org/schemas/ncip/v2_0/ncip_v2_0.xsd" xmlns="http://www.niso.org/2008/ncip">
+    <CheckOutItem>
+        <RequestId>
+            <AgencyId>Relais</AgencyId>
+            <RequestIdentifierType>Barcode Id</RequestIdentifierType>
+            <RequestIdentifierValue>0002</RequestIdentifierValue>
+        </RequestId>
+        <UserId>
+            <AgencyId>nypl</AgencyId>
+            <UserIdentifierType>Barcode Id</UserIdentifierType>
+            <UserIdentifierValue>Barcode</UserIdentifierValue>
+        </UserId>
+        <ItemId>
+            <AgencyId>nypl</AgencyId>
+            <ItemIdentifierType>Barcode Id</ItemIdentifierType>
+            <ItemIdentifierValue>Barcode</ItemIdentifierValue>
+        </ItemId>
+        <DesiredDateDue>2017-09-27 16:38:11-04:00</DesiredDateDue>
+    </CheckOutItem>
+</NCIPMessage>
+

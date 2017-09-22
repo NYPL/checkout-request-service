@@ -33,7 +33,7 @@ class CheckoutItemErrorResponse extends NCIPResponse
      */
     public function setStatusCode($statusCode)
     {
-        $this->statusCode = $statusCode;
+        $this->statusCode = (int)$statusCode;
     }
 
     /**

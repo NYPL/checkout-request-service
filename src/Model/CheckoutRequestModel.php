@@ -39,6 +39,7 @@ class CheckoutRequestModel extends Model
     public $desiredDateDue;
 
     /**
+     * @SWG\Property(example="1234567890")
      * @var int
      */
     public $cancelRequestId;

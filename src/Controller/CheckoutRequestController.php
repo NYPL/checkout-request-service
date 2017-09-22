@@ -76,7 +76,7 @@ class CheckoutRequestController extends ServiceController
 
             // Validate request data.
             // Send CheckoutRequest to client.
-            APILogger::addDebug('Initiating checkout process.');
+            APILogger::addInfo('Initiating checkout process.');
             $checkoutClient = new CheckoutClient();
 
             $checkoutResponse = $checkoutClient->processCheckoutRequest($checkoutRequest);
@@ -86,30 +86,42 @@ class CheckoutRequestController extends ServiceController
             $checkoutRequest->addFilter(new Filter('id', $checkoutRequest->getId()));
             $checkoutRequest->read();
 
-            $response = new CheckoutRequestResponse($checkoutRequest);
-
             // Assume success unless an error response is returned.
             $successFlag = true;
 
-            $response->setStatusCode($checkoutResponse->getStatusCode());
+            $response = new CheckoutRequestResponse($checkoutRequest);
+            $responseStatus = 200;
 
             if ($checkoutResponse instanceof CheckoutItemErrorResponse) {
-                if ($checkoutResponse->getStatusCode() == '404') {
+                if ($checkoutResponse->getStatusCode() >= 400) {
+                    $response = new CheckoutRequestErrorResponse(
+                        $checkoutResponse->getStatusCode(),
+                        'ncip-checkout-error',
+                        'NCIP error. See debug info.'
+                    );
                     $successFlag = false;
+                    $responseStatus = $checkoutResponse->getStatusCode();
                 }
                 $response->setDebugInfo('NCIP Response Message: ' . $checkoutResponse->getProblem());
             }
 
-            APILogger::addDebug('Updating CheckoutRequest status.');
+            $response->setStatusCode($checkoutResponse->getStatusCode());
+
+            APILogger::addInfo('Updating checkout request status.');
             $checkoutRequest->update(
                 ['success' => $successFlag]
             );
 
-            return $this->getResponse()->withJson($response);
+            return $this->getResponse()->withJson($response)->withStatus($responseStatus);
 
         } catch (APIException $exception) {
-            APILogger::addDebug('NCIP Message exception thrown.', [$exception->getMessage()]);
-            return $this->getResponse()->withJson(new CheckoutRequestErrorResponse());
+            APILogger::addDebug('NCIP exception thrown.', [$exception->getMessage()]);
+            return $this->getResponse()->withJson(new CheckoutRequestErrorResponse(
+                400,
+                'ncip-checkout-error',
+                'NCIP exception thrown',
+                $exception
+            ))->withStatus(400);
 
         } catch (\Exception $exception) {
             $errorType = 'process-checkout-request-error';

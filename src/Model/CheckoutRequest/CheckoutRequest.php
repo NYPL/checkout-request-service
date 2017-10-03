@@ -1,6 +1,8 @@
 <?php
 namespace NYPL\Services\Model\CheckoutRequest;
 
+use NYPL\Starter\APIException;
+use NYPL\Starter\APILogger;
 use NYPL\Starter\Model\LocalDateTime;
 use NYPL\Starter\Model\ModelInterface\ReadInterface;
 use NYPL\Starter\Model\ModelTrait\DBCreateTrait;
@@ -15,6 +17,8 @@ use NYPL\Starter\Model\ModelTrait\DBUpdateTrait;
 class CheckoutRequest extends NewCheckoutRequest implements ReadInterface
 {
     use DBCreateTrait, DBReadTrait, DBUpdateTrait;
+
+    const REQUIRED_FIELDS = 'cancelRequestId,patronBarcode,itemBarcode';
 
     /**
      * @SWG\Property(example=124)
@@ -164,5 +168,25 @@ class CheckoutRequest extends NewCheckoutRequest implements ReadInterface
     public function translateCreatedDate($createdDate = '')
     {
         return new LocalDateTime(LocalDateTime::FORMAT_DATE_TIME_RFC, $createdDate);
+    }
+
+    /**
+     * @throws APIException
+     */
+    public function validatePostData()
+    {
+        $requiredFields = explode(',', self::REQUIRED_FIELDS);
+
+        foreach ($requiredFields as $field) {
+            if (!isset($this->$field)) {
+                APILogger::addError(
+                    'CheckoutRequest object not instantiated. Bad request data sent.',
+                    $this->getRawData()
+                );
+                throw new APIException("Checkout request is missing the {$field} element.", null, 0, null, 400);
+            }
+        }
+
+        APILogger::addDebug('POST request payload validation passed.');
     }
 }

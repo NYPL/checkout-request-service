@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<NCIPMessage version="http://www.niso.org/schemas/ncip/v2_0/ncip_v2_0.xsd" xmlns="http://www.niso.org/2008/ncip">
+    <CheckOutItemResponse>
+        <ItemId>
+            <AgencyId>rc2ma</AgencyId>
+            <ItemIdentifierType>Barcode Id</ItemIdentifierType>
+            <ItemIdentifierValue>33433000948251</ItemIdentifierValue>
+        </ItemId>
+        <UserId>
+            <AgencyId>mm   </AgencyId>
+            <UserIdentifierType>Barcode Id</UserIdentifierType>
+            <UserIdentifierValue>234567890987654</UserIdentifierValue>
+        </UserId>
+        <DateDue>2018-06-29T04:00:00.000-05:00</DateDue>
+        <RenewalCount>0</RenewalCount>
+    </CheckOutItemResponse>
+</NCIPMessage>

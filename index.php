@@ -17,7 +17,7 @@ try {
 
     $service->get('/docs/checkout-requests', Swagger::class);
 
-    $service->post('/api/v0.1/checkout-requests', CheckoutRequestController::class . ':processCheckOutRequest');
+    $service->post('/api/v0.1/checkout-requests', CheckoutRequestController::class . ':processCheckoutRequest');
 
     $service->run();
 } catch (Exception $exception) {

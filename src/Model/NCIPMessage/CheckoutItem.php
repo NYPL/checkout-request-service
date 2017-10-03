@@ -4,6 +4,7 @@ namespace NYPL\Services\Model\NCIPMessage;
 use Danmichaelo\QuiteSimpleXMLElement\QuiteSimpleXMLElement;
 use NYPL\Services\Model\CheckoutRequest\CheckoutRequest;
 use NYPL\Services\NCIPMessage;
+use NYPL\Starter\APILogger;
 use NYPL\Starter\Model\LocalDateTime;
 
 /**
@@ -28,7 +29,7 @@ class CheckoutItem extends NCIPMessage
     public $itemBarcode = '';
 
     /**
-     * @var LocalDateTime
+     * @var string
      */
     public $desiredDateDue = '';
 
@@ -58,7 +59,12 @@ class CheckoutItem extends NCIPMessage
         }
 
         if ($checkoutRequest->getDesiredDateDue()) {
-            $this->setDesiredDateDue($checkoutRequest->getDesiredDateDue());
+            $this->setDesiredDateDue(
+                $checkoutRequest
+                    ->getDesiredDateDue()
+                    ->getDateTime()
+                    ->format($checkoutRequest->getDesiredDateDue()->getFormat())
+            );
         }
 
         $this->buildMessage();
@@ -127,7 +133,7 @@ class CheckoutItem extends NCIPMessage
     /**
      * @param string $desiredDateDue
      */
-    public function setDesiredDateDue(LocalDateTime $desiredDateDue)
+    public function setDesiredDateDue($desiredDateDue)
     {
         $this->desiredDateDue = $desiredDateDue;
     }
@@ -197,7 +203,7 @@ class CheckoutItem extends NCIPMessage
     /**
      * @return $this
      */
-    protected function buildMessage()
+    public function buildMessage()
     {
         $this->initializeMessage();
 

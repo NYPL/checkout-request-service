@@ -1,6 +1,7 @@
 <?php
 namespace NYPL\Services\Controller;
 
+use NYPL\Services\CancelRequestLogger;
 use NYPL\Services\CheckoutClient;
 use NYPL\Services\Model\CheckoutRequest\CheckoutRequest;
 use NYPL\Services\Model\NCIPResponse\CheckoutItemErrorResponse;
@@ -57,7 +58,7 @@ class CheckoutRequestController extends ServiceController
      *     ),
      *     security={
      *         {
-     *             "api_auth": {"openid offline_access api"}
+     *             "api_auth": {"openid offline_access api write:hold_request readwrite:hold_request"}
      *         }
      *     }
      * )
@@ -68,15 +69,34 @@ class CheckoutRequestController extends ServiceController
     public function processCheckoutRequest()
     {
         try {
+            if (!$this->isRequestAuthorized()) {
+                APILogger::addError('Invalid request received. Client not authorized to initiate checkout requests.');
+                return $this->invalidScopeResponse(new APIException(
+                    'Client not authorized to initiate checkout requests.',
+                    null,
+                    0,
+                    null,
+                    403
+                ));
+            }
+
             $data = $this->getRequest()->getParsedBody();
 
             $checkoutRequest = new CheckoutRequest($data);
+
             APILogger::addDebug('POST request sent.', $data);
+
+            try {
+                $checkoutRequest->validatePostData();
+            } catch (APIException $exception) {
+                return $this->invalidRequestResponse($exception);
+            }
+
             $checkoutRequest->create();
 
             // Validate request data.
             // Send CheckoutRequest to client.
-            APILogger::addInfo('Initiating checkout process.');
+            CancelRequestLogger::addInfo('Initiating checkout process.');
             $checkoutClient = new CheckoutClient();
 
             $checkoutResponse = $checkoutClient->processCheckoutRequest($checkoutRequest);
@@ -97,17 +117,16 @@ class CheckoutRequestController extends ServiceController
                     $response = new CheckoutRequestErrorResponse(
                         $checkoutResponse->getStatusCode(),
                         'ncip-checkout-error',
-                        'NCIP error. See debug info.'
+                        $checkoutResponse->getProblem()
                     );
                     $successFlag = false;
                     $responseStatus = $checkoutResponse->getStatusCode();
                 }
-                $response->setDebugInfo('NCIP Response Message: ' . $checkoutResponse->getProblem());
             }
 
             $response->setStatusCode($checkoutResponse->getStatusCode());
 
-            APILogger::addInfo('Updating checkout request status.');
+            CancelRequestLogger::addInfo('Updating checkout request status.');
             $checkoutRequest->update(
                 ['success' => $successFlag]
             );

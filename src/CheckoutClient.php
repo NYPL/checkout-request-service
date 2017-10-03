@@ -49,13 +49,11 @@ class CheckoutClient extends APIClient
      */
     public function processCheckoutRequest(CheckoutRequest $checkoutRequest)
     {
-        APILogger::addDebug('Request model', [$checkoutRequest]);
-
         if (!$this->getCheckoutItem()) {
             $this->setCheckoutItem(new CheckoutItem($checkoutRequest));
         }
 
-        APILogger::addDebug('CheckoutObj', $this->getCheckoutItem()->getMessage()->asXML());
+        APILogger::addDebug('NCIP Message', $this->getCheckoutItem()->getMessage()->asXML());
 
         $ncipResponse = $this->sendCheckoutRequest();
 

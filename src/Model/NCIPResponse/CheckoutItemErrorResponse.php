@@ -13,7 +13,7 @@ class CheckoutItemErrorResponse extends NCIPResponse
     /**
      * @var int
      */
-    public $statusCode = 208;
+    public $statusCode = 409;
 
     /**
      * @var string

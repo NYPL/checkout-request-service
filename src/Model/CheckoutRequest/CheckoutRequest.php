@@ -18,7 +18,7 @@ class CheckoutRequest extends NewCheckoutRequest implements ReadInterface
 {
     use DBCreateTrait, DBReadTrait, DBUpdateTrait;
 
-    const REQUIRED_FIELDS = 'cancelRequestId,patronBarcode,itemBarcode';
+    const REQUIRED_FIELDS = 'patronBarcode,itemBarcode';
 
     /**
      * @SWG\Property(example=124)

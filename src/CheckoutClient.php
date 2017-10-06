@@ -47,7 +47,7 @@ class CheckoutClient extends APIClient
      * @param CheckoutRequest $checkoutRequest
      * @return NCIPResponse
      */
-    public function processCheckoutRequest(CheckoutRequest $checkoutRequest)
+    public function buildCheckoutRequest(CheckoutRequest $checkoutRequest)
     {
         if (!$this->getCheckoutItem()) {
             $this->setCheckoutItem(new CheckoutItem($checkoutRequest));

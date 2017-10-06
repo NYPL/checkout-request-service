@@ -52,6 +52,11 @@ class CheckoutRequestController extends ServiceController
      *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
      *     ),
      *     @SWG\Response(
+     *         response="409",
+     *         description="Conflict",
+     *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+     *     ),
+     *     @SWG\Response(
      *         response="500",
      *         description="Generic server error",
      *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
@@ -69,23 +74,12 @@ class CheckoutRequestController extends ServiceController
     public function processCheckoutRequest()
     {
         try {
-            if (!$this->isRequestAuthorized()) {
-                APILogger::addError('Invalid request received. Client not authorized to initiate checkout requests.');
-                return $this->invalidScopeResponse(new APIException(
-                    'Client not authorized to initiate checkout requests.',
-                    null,
-                    0,
-                    null,
-                    403
-                ));
-            }
-
             $data = $this->getRequest()->getParsedBody();
-
             $checkoutRequest = new CheckoutRequest($data);
 
             APILogger::addDebug('POST request sent.', $data);
 
+            // Validate request data.
             try {
                 $checkoutRequest->validatePostData();
             } catch (APIException $exception) {
@@ -94,44 +88,35 @@ class CheckoutRequestController extends ServiceController
 
             $checkoutRequest->create();
 
-            // Validate request data.
             // Send CheckoutRequest to client.
-            CancelRequestLogger::addInfo('Initiating checkout process.');
-            $checkoutClient = new CheckoutClient();
-
-            $checkoutResponse = $checkoutClient->processCheckoutRequest($checkoutRequest);
-
-            APILogger::addDebug('API Response', $checkoutResponse);
-
-            $checkoutRequest->addFilter(new Filter('id', $checkoutRequest->getId()));
-            $checkoutRequest->read();
+            $initLogMessage = 'Initiating checkout process.';
+            if (is_int($checkoutRequest->getCancelRequestId())) {
+                $initLogMessage .= ' (CancelRequestID: ' . $checkoutRequest->getCancelRequestId() . ')';
+            }
+            CancelRequestLogger::addInfo($initLogMessage);
 
             // Assume success unless an error response is returned.
             $successFlag = true;
+            $checkoutStatus = 200;
 
-            $response = new CheckoutRequestResponse($checkoutRequest);
-            $responseStatus = 200;
+            $checkoutResponse = $this->sendCircOperation($checkoutRequest);
 
-            if ($checkoutResponse instanceof CheckoutItemErrorResponse) {
-                if ($checkoutResponse->getStatusCode() >= 400) {
-                    $response = new CheckoutRequestErrorResponse(
-                        $checkoutResponse->getStatusCode(),
-                        'ncip-checkout-error',
-                        $checkoutResponse->getProblem()
-                    );
-                    $successFlag = false;
-                    $responseStatus = $checkoutResponse->getStatusCode();
-                }
+            if ($checkoutResponse instanceof CheckoutRequestErrorResponse) {
+                $successFlag = false;
+                $checkoutStatus = $checkoutResponse->getStatusCode();
             }
 
-            $response->setStatusCode($checkoutResponse->getStatusCode());
+            $patchLogMessage = 'Updating checkout request status.';
+            if (is_int($checkoutRequest->getCancelRequestId())) {
+                $patchLogMessage .= ' (CancelRequestID: ' . $checkoutRequest->getCancelRequestId() . ')';
+            }
+            CancelRequestLogger::addInfo($patchLogMessage);
 
-            CancelRequestLogger::addInfo('Updating checkout request status.');
             $checkoutRequest->update(
                 ['success' => $successFlag]
             );
 
-            return $this->getResponse()->withJson($response)->withStatus($responseStatus);
+            return $this->getResponse()->withJson($checkoutResponse)->withStatus($checkoutStatus);
 
         } catch (APIException $exception) {
             APILogger::addDebug('NCIP exception thrown.', [$exception->getMessage()]);
@@ -148,6 +133,36 @@ class CheckoutRequestController extends ServiceController
 
             return $this->processException($errorType, $errorMsg, $exception, $this->getRequest());
         }
+    }
+
+    /**
+     * @param CheckoutRequest $checkoutRequest
+     * @return CheckoutRequestErrorResponse|CheckoutRequestResponse
+     */
+    protected function sendCircOperation(CheckoutRequest $checkoutRequest)
+    {
+        $checkoutClient = new CheckoutClient();
+        $checkoutClientResponse = $checkoutClient->buildCheckoutRequest($checkoutRequest);
+
+        APILogger::addDebug('API Response', $checkoutClientResponse);
+
+        $checkoutRequest->addFilter(new Filter('id', $checkoutRequest->getId()));
+        $checkoutRequest->read();
+
+        $checkoutResponse = new CheckoutRequestResponse($checkoutRequest);
+
+        if ($checkoutClientResponse instanceof CheckoutItemErrorResponse) {
+            if ($checkoutClientResponse->getStatusCode() >= 400) {
+                $checkoutResponse = new CheckoutRequestErrorResponse(
+                    $checkoutClientResponse->getStatusCode(),
+                    'ncip-checkout-error',
+                    $checkoutClientResponse->getProblem()
+                );
+            }
+        }
+        $checkoutResponse->setStatusCode($checkoutClientResponse->getStatusCode());
+
+        return $checkoutResponse;
     }
 
     /**

@@ -50,6 +50,6 @@ class CheckoutRequestControllerTest extends TestCase
 
         $response = $controller->processCheckoutRequest();
 
-        self::assertSame(403, $response->getStatusCode());
+        self::assertSame(400, $response->getStatusCode());
     }
 }

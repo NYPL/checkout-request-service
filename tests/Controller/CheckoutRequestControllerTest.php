@@ -35,6 +35,9 @@ class CheckoutRequestControllerTest extends TestCase
         };
     }
 
+    /**
+     * @covers NYPL\Services\Controller\CheckoutRequestController::processCheckoutRequest()
+     */
     public function testCreatesCheckOutModelFromRequest()
     {
         $controller = $this->fakeCheckoutController;
@@ -44,6 +47,9 @@ class CheckoutRequestControllerTest extends TestCase
         self::assertInstanceOf('Slim\Http\Response', $response);
     }
 
+    /**
+     * @covers NYPL\Services\Controller\CheckoutRequestController::processCheckoutRequest()
+     */
     public function testMisconfigurationThrowsException()
     {
         $controller = $this->fakeCheckoutController;

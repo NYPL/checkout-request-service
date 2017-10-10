@@ -46,10 +46,10 @@ class NCIPClient
     public static $problemResponses = [
         '9029' => '409', // Failed to checkout.
         '9025' => '208', // Already checked out.
-        '5000' => '400',
+        '5000' => '400', // Bad request.
         '9006' => '409', // User blocked.
         '9007' => '409', // User blocked.
-        '9004' => '406',
+        '9004' => '406', // Unknown user.
         '9016' => '404', // Unknown item.
     ];
 

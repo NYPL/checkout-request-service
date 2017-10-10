@@ -52,6 +52,11 @@ class CheckoutRequestController extends ServiceController
      *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
      *     ),
      *     @SWG\Response(
+     *         response="406",
+     *         description="Not accepted",
+     *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+     *     ),
+     *     @SWG\Response(
      *         response="409",
      *         description="Conflict",
      *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")

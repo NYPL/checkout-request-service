@@ -33,6 +33,11 @@ class CheckoutRequest extends NewCheckoutRequest implements ReadInterface
     public $success = false;
 
     /**
+     * @var bool
+     */
+    public $processed = true;
+
+    /**
      * @SWG\Property(example="2016-01-07T02:32:51Z", type="string")
      * @var LocalDateTime
      */
@@ -43,6 +48,11 @@ class CheckoutRequest extends NewCheckoutRequest implements ReadInterface
      * @var LocalDateTime
      */
     public $createdDate;
+
+    /**
+     * @var string
+     */
+    public $checkoutJobId;
 
     /**
      * Returns a valid Avro 1.8.1 schema structure.
@@ -57,7 +67,7 @@ class CheckoutRequest extends NewCheckoutRequest implements ReadInterface
                 "type" => "record",
                 "fields" => [
                     ["name" => "id", "type" => "int"],
-                    ["name" => "cancelRequestId", "type" => "int"],
+                    ["name" => "cancelRequestId", "type" => ["int", "null"]],
                     ["name" => "patronBarcode", "type" => "string"],
                     ["name" => "itemBarcode", "type" => "string"],
                     ["name" => "owningInstitutionId", "type" => ["string", "null"]],
@@ -168,6 +178,22 @@ class CheckoutRequest extends NewCheckoutRequest implements ReadInterface
     public function translateCreatedDate($createdDate = '')
     {
         return new LocalDateTime(LocalDateTime::FORMAT_DATE_TIME_RFC, $createdDate);
+    }
+
+    /**
+     * @return string
+     */
+    public function getCheckoutJobId()
+    {
+        return $this->checkoutJobId;
+    }
+
+    /**
+     * @param string $checkoutJobId
+     */
+    public function setCheckoutJobId($checkoutJobId)
+    {
+        $this->checkoutJobId = $checkoutJobId;
     }
 
     /**

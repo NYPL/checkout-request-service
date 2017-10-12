@@ -155,4 +155,19 @@ class CheckoutRequestModel extends Model
     {
         $this->jobId = $jobId;
     }
+
+    public function addExcludedProperties($property = '')
+    {
+        $excluded = $this->getExcludeProperties();
+        array_push($excluded, $property);
+        $this->setExcludeProperties($excluded);
+    }
+
+    public function removeExcludedProperties($property = '')
+    {
+        $excluded = $this->getExcludeProperties();
+        $excluded = array_diff($excluded, [$property]);
+        $this->setExcludeProperties($excluded);
+    }
+
 }

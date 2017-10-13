@@ -24,12 +24,13 @@ class CheckoutRequestControllerTest extends TestCase
 
             public function __construct(\Slim\Container $container, $cacheSeconds)
             {
+                $this->setUseJobService(1);
                 parent::__construct($container, $cacheSeconds);
             }
 
-            public function processCheckoutRequest()
+            public function createCheckoutRequest()
             {
-                return parent::processCheckoutRequest();
+                return parent::createCheckoutRequest();
             }
 
         };
@@ -42,7 +43,7 @@ class CheckoutRequestControllerTest extends TestCase
     {
         $controller = $this->fakeCheckoutController;
 
-        $response = $controller->processCheckoutRequest();
+        $response = $controller->createCheckoutRequest();
 
         self::assertInstanceOf('Slim\Http\Response', $response);
     }
@@ -54,8 +55,8 @@ class CheckoutRequestControllerTest extends TestCase
     {
         $controller = $this->fakeCheckoutController;
 
-        $response = $controller->processCheckoutRequest();
+        $response = $controller->createCheckoutRequest();
 
-        self::assertSame(400, $response->getStatusCode());
+        self::assertSame(500, $response->getStatusCode());
     }
 }

@@ -156,18 +156,23 @@ class CheckoutRequestModel extends Model
         $this->jobId = $jobId;
     }
 
-    public function addExcludedProperties($property = '')
+    /**
+     * @param array $properties
+     */
+    public function addExcludedProperties(array $properties)
     {
         $excluded = $this->getExcludeProperties();
-        array_push($excluded, $property);
+        $excluded = array_merge($excluded, $properties);
         $this->setExcludeProperties($excluded);
     }
 
-    public function removeExcludedProperties($property = '')
+    /**
+     * @param array $properties
+     */
+    public function removeExcludedProperties(array $properties)
     {
         $excluded = $this->getExcludeProperties();
-        $excluded = array_diff($excluded, [$property]);
+        $excluded = array_diff($excluded, $properties);
         $this->setExcludeProperties($excluded);
     }
-
 }

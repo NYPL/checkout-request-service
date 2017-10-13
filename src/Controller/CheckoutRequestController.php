@@ -77,44 +77,17 @@ class CheckoutRequestController extends ServiceController
      * @throws APIException
      * @return Response
      */
-    public function processCheckoutRequest()
+    public function createCheckoutRequest()
     {
         try {
             $data = $this->getRequest()->getParsedBody();
             $checkoutRequest = new CheckoutRequest($data);
             // Exclude checkoutJobId and processed values used for non-cancellation responses.
-            $checkoutRequest->addExcludedProperties('checkoutJobId');
-            $checkoutRequest->addExcludedProperties('processed');
+            $checkoutRequest->addExcludedProperties(['checkoutJobId', 'processed']);
 
             APILogger::addDebug('POST request sent.', $data);
 
-            // Validate request data.
-            try {
-                $checkoutRequest->validatePostData();
-            } catch (APIException $exception) {
-                return $this->invalidRequestResponse($exception);
-            }
-
-            $checkoutRequest->create();
-
-            // Initiate a job for non-cancellation requests.
-            if (is_null($checkoutRequest->getJobId()) && $this->isUseJobService()) {
-                $checkoutRequest->setCheckoutJobId(JobService::generateJobId($this->isUseJobService()));
-                // Set jobId for proper responses for non-cancellation requests.
-                $checkoutRequest->setJobId($checkoutRequest->getCheckoutJobId());
-                APILogger::addDebug(
-                    'Initiating job via Job Service API ReCAP checkout request.',
-                    ['checkoutJobID' => $checkoutRequest->getCheckoutJobId()]
-                );
-                JobService::beginJob($checkoutRequest);
-            }
-
-            // Send CheckoutRequest to client.
-            $initLogMessage = 'Initiating checkout process.';
-            if (is_int($checkoutRequest->getCancelRequestId())) {
-                $initLogMessage .= ' (CancelRequestID: ' . $checkoutRequest->getCancelRequestId() . ')';
-            }
-            CancelRequestLogger::addInfo($initLogMessage);
+            $this->initiateCheckoutRequest($checkoutRequest);
 
             // Assume success unless an error response is returned.
             $successFlag = true;
@@ -127,23 +100,7 @@ class CheckoutRequestController extends ServiceController
                 $checkoutStatus = $checkoutResponse->getStatusCode();
             }
 
-            $updateLogMessage = 'Updating checkout request status.';
-            if (is_int($checkoutRequest->getCancelRequestId())) {
-                $updateLogMessage .= ' (CancelRequestID: ' . $checkoutRequest->getCancelRequestId() . ')';
-            }
-            CancelRequestLogger::addInfo($updateLogMessage);
-
-            $checkoutRequest->update(
-                ['success' => $successFlag]
-            );
-
-            // Finish job processing for non-cancellation requests.
-            if (!is_null($checkoutRequest->getCheckoutJobId()) && $this->isUseJobService()) {
-                APILogger::addDebug('Updating checkout job.', ['checkoutJobID' => $checkoutRequest->getCheckoutJobId()]);
-                JobService::finishJob($checkoutRequest);
-                // Add processed value back for non-cancellation responses.
-                $checkoutRequest->removeExcludedProperties('processed');
-            }
+            $this->updateCheckoutRequest($checkoutRequest, $successFlag);
 
             return $this->getResponse()->withJson($checkoutResponse)->withStatus($checkoutStatus);
 
@@ -161,6 +118,67 @@ class CheckoutRequestController extends ServiceController
             $errorMsg = 'Unable to process checkout request due to a problem with dependent services.';
 
             return $this->processException($errorType, $errorMsg, $exception, $this->getRequest());
+        }
+    }
+
+    /**
+     * @param CheckoutRequest $checkoutRequest
+     * @return Response
+     */
+    protected function initiateCheckoutRequest(CheckoutRequest $checkoutRequest)
+    {
+        // Validate request data.
+        try {
+            $checkoutRequest->validatePostData();
+        } catch (APIException $exception) {
+            return $this->invalidRequestResponse($exception);
+        }
+
+        $checkoutRequest->create();
+
+        // Initiate a job for non-cancellation requests.
+        if (is_null($checkoutRequest->getJobId()) && $this->isUseJobService()) {
+            $checkoutRequest->setCheckoutJobId(JobService::generateJobId($this->isUseJobService()));
+            // Set jobId for proper responses for non-cancellation requests.
+            $checkoutRequest->setJobId($checkoutRequest->getCheckoutJobId());
+            APILogger::addDebug(
+                'Initiating job via Job Service API ReCAP checkout request.',
+                ['checkoutJobID' => $checkoutRequest->getCheckoutJobId()]
+            );
+            JobService::beginJob($checkoutRequest);
+        }
+
+        // Log start of general checkout requests or cancel request checkouts.
+        $initLogMessage = 'Initiating checkout process.';
+        if (is_int($checkoutRequest->getCancelRequestId())) {
+            $initLogMessage .= ' (CancelRequestID: ' . $checkoutRequest->getCancelRequestId() . ')';
+            CancelRequestLogger::addInfo($initLogMessage);
+        }
+    }
+
+    /**
+     * @param CheckoutRequest $checkoutRequest
+     * @param bool            $successFlag
+     */
+    protected function updateCheckoutRequest(CheckoutRequest $checkoutRequest, bool $successFlag)
+    {
+        // Log updates for general checkout requests or cancel request checkouts.
+        $updateLogMessage = 'Updating checkout request status.';
+        if (is_int($checkoutRequest->getCancelRequestId())) {
+            $updateLogMessage .= ' (CancelRequestID: ' . $checkoutRequest->getCancelRequestId() . ')';
+            CancelRequestLogger::addInfo($updateLogMessage);
+        }
+
+        $checkoutRequest->update(
+            ['success' => $successFlag]
+        );
+
+        // Finish job processing for non-cancellation requests.
+        if (!is_null($checkoutRequest->getCheckoutJobId()) && $this->isUseJobService()) {
+            APILogger::addDebug('Updating checkout job.', ['checkoutJobID' => $checkoutRequest->getCheckoutJobId()]);
+            JobService::finishJob($checkoutRequest);
+            // Add processed value back for non-cancellation responses.
+            $checkoutRequest->removeExcludedProperties(['processed']);
         }
     }
 

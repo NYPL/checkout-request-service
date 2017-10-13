@@ -37,7 +37,7 @@ class CheckoutRequestControllerTest extends TestCase
     }
 
     /**
-     * @covers NYPL\Services\Controller\CheckoutRequestController::processCheckoutRequest()
+     * @covers NYPL\Services\Controller\CheckoutRequestController::createCheckoutRequest()
      */
     public function testCreatesCheckOutModelFromRequest()
     {
@@ -49,7 +49,7 @@ class CheckoutRequestControllerTest extends TestCase
     }
 
     /**
-     * @covers NYPL\Services\Controller\CheckoutRequestController::processCheckoutRequest()
+     * @covers NYPL\Services\Controller\CheckoutRequestController::createCheckoutRequest()
      */
     public function testMisconfigurationThrowsException()
     {

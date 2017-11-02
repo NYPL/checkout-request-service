@@ -24,38 +24,39 @@ class CheckoutRequestControllerTest extends TestCase
 
             public function __construct(\Slim\Container $container, $cacheSeconds)
             {
+                $this->setUseJobService(1);
                 parent::__construct($container, $cacheSeconds);
             }
 
-            public function processCheckoutRequest()
+            public function createCheckoutRequest()
             {
-                return parent::processCheckoutRequest();
+                return parent::createCheckoutRequest();
             }
 
         };
     }
 
     /**
-     * @covers NYPL\Services\Controller\CheckoutRequestController::processCheckoutRequest()
+     * @covers NYPL\Services\Controller\CheckoutRequestController::createCheckoutRequest()
      */
     public function testCreatesCheckOutModelFromRequest()
     {
         $controller = $this->fakeCheckoutController;
 
-        $response = $controller->processCheckoutRequest();
+        $response = $controller->createCheckoutRequest();
 
         self::assertInstanceOf('Slim\Http\Response', $response);
     }
 
     /**
-     * @covers NYPL\Services\Controller\CheckoutRequestController::processCheckoutRequest()
+     * @covers NYPL\Services\Controller\CheckoutRequestController::createCheckoutRequest()
      */
     public function testMisconfigurationThrowsException()
     {
         $controller = $this->fakeCheckoutController;
 
-        $response = $controller->processCheckoutRequest();
+        $response = $controller->createCheckoutRequest();
 
-        self::assertSame(400, $response->getStatusCode());
+        self::assertSame(500, $response->getStatusCode());
     }
 }

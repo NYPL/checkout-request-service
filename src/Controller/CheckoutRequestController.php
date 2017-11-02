@@ -105,7 +105,7 @@ class CheckoutRequestController extends ServiceController
             return $this->getResponse()->withJson($checkoutResponse)->withStatus($checkoutStatus);
 
         } catch (APIException $exception) {
-            APILogger::addDebug('NCIP exception thrown.', [$exception->getMessage()]);
+            APILogger::addError('NCIP exception thrown.', [$exception->getMessage()]);
             return $this->getResponse()->withJson(new CheckoutRequestErrorResponse(
                 400,
                 'ncip-checkout-error',
@@ -226,8 +226,7 @@ class CheckoutRequestController extends ServiceController
             $statusCode = $exception->getHttpCode();
         }
 
-        APILogger::addLog(
-            $statusCode,
+        APILogger::addError(
             get_class($exception) . ': ' . $exception->getMessage(),
             [
                 $request->getHeaderLine('X-NYPL-Log-Stream-Name'),

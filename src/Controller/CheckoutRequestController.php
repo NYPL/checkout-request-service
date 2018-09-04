@@ -81,11 +81,21 @@ class CheckoutRequestController extends ServiceController
     {
         try {
             $data = $this->getRequest()->getParsedBody();
+            APILogger::addDebug('POST request sent.', $data);
+            // Need to randomize partner barcodes to avoid going over checkout limit
+            $key = "PATRON_BARCODES_${$data['patronBarcode']}"
+            if (array_key_exists($key, $_ENV)) {
+              $barcodes = explode("," , $_ENV[$key]);
+              $numberOfPatronBarcodes = count($barcodes);
+              $newBarcode = $barcodes[rand(0, $numberOfPatronBarcodes - 1)]
+              if ($newBarcode) {
+                $data['patronBarcode'] = $newBarcode;
+                APILogger::addDebug('Randomizing partner barcode', array('newBarcode' => $newBarcode))
+              }
+            }
             $checkoutRequest = new CheckoutRequest($data);
             // Exclude checkoutJobId and processed values used for non-cancellation responses.
             $checkoutRequest->addExcludedProperties(['checkoutJobId', 'processed']);
-
-            APILogger::addDebug('POST request sent.', $data);
 
             $this->initiateCheckoutRequest($checkoutRequest);
 

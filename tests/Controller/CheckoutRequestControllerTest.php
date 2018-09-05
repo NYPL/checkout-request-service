@@ -59,4 +59,16 @@ class CheckoutRequestControllerTest extends TestCase
 
         self::assertSame(500, $response->getStatusCode());
     }
+
+    /**
+     * @covers reassignPartnerBarcode
+     */
+    public function testReassignPartnerBarcode()
+    {
+        $controller = $this->fakeCheckoutController;
+        $_ENV['PATRON_BARCODES_70620917062091'] = '12345,678910';
+        $data = array('patronBarcode' => 70620917062091);
+        $data = $controller->reassignPartnerBarcode($data);
+        self::assertContains($data['patronBarcode'], ['12345', '678910']);
+    }
 }

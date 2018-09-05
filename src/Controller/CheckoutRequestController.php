@@ -14,6 +14,7 @@ use NYPL\Starter\APILogger;
 use NYPL\Starter\Filter;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use NYPL\Starter\Config;
 
 /**
  * Class CheckoutRequestController
@@ -256,17 +257,17 @@ class CheckoutRequestController extends ServiceController
 
     static function reassignPartnerBarcode($data)
     {
-      $key = "PATRON_BARCODES_${$data['patronBarcode']}"
+      $key = "PATRON_BARCODES_${$data['patronBarcode']}";
       $barcodes = explode("," , Config::get($key, ""));
       $barcodes = array_filter($barcodes, function ($item) { return $item; });
       $numberOfPatronBarcodes = count($barcodes);
       if ($numberOfPatronBarcodes >= 1) {
-        $newBarcode = $barcodes[rand(0, $numberOfPatronBarcodes - 1)]
+        $newBarcode = $barcodes[rand(0, $numberOfPatronBarcodes - 1)];
         if ($newBarcode) {
           $data['patronBarcode'] = $newBarcode;
-          APILogger::addDebug('Randomizing partner barcode', array('newBarcode' => $newBarcode))
+          APILogger::addDebug('Randomizing partner barcode', array('newBarcode' => $newBarcode));
         }
       }
-      return $data
+      return $data;
     }
 }

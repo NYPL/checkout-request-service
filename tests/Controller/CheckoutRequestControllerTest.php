@@ -67,11 +67,18 @@ class CheckoutRequestControllerTest extends TestCase
     public function testReassignPartnerBarcode()
     {
         putenv('PATRON_BARCODES_70620917062091=12345,678910');
-        $get = Config::get('PATRON_BARCODES_70620917062091', "");
-        echo "get: {$get} \n";
         $controller = $this->fakeCheckoutController;
         $data = array('patronBarcode' => 70620917062091);
         $data = $controller->reassignPartnerBarcode($data);
         $this->assertContains($data['patronBarcode'], ['12345', '678910']);
+    }
+
+    public function testDoesNotReassignNYPLBarcode()
+    {
+      putenv('PATRON_BARCODES_70620917062091=12345,678910');
+      $controller = $this->fakeCheckoutController;
+      $data = array('patronBarcode' => 314159);
+      $data = $controller->reassignPartnerBarcode($data);
+      $this->assertSame($data['patronBarcode'], 314159);
     }
 }

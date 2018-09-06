@@ -255,11 +255,15 @@ class CheckoutRequestController extends ServiceController
         return $this->getResponse()->withJson($errorResp)->withStatus($statusCode);
     }
 
+    /**
+     * @param array $data should have a patronBarcode attribute, which will be randomly reassigned for partners
+     * @return array will be a copy of the input with patronBarcode reassigned in case it was originally a partner barcode
+     */
+
     static function reassignPartnerBarcode($data)
     {
       $key = "PATRON_BARCODES_{$data['patronBarcode']}";
       $barcodes = explode("," , Config::get($key, ""));
-      echo "barcodes: {$barcodes[0]}, {$barcodes[1]} \n";
       $barcodes = array_filter($barcodes, function ($item) { return $item; });
       $numberOfPatronBarcodes = count($barcodes);
       if ($numberOfPatronBarcodes >= 1) {

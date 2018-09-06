@@ -62,7 +62,7 @@ class CheckoutRequestControllerTest extends TestCase
     }
 
     /**
-     * @covers  NYPL\Services\Controller\CheckoutRequestController::reassignPartnerBarcode()
+     * @covers NYPL\Services\Controller\CheckoutRequestController::reassignPartnerBarcode()
      */
     public function testReassignPartnerBarcode()
     {

@@ -5,6 +5,7 @@ use NYPL\Services\Controller\CheckoutRequestController;
 use NYPL\Services\Test\Mocks\MockConfig;
 use NYPL\Services\Test\Mocks\MockService;
 use PHPUnit\Framework\TestCase;
+use NYPL\Starter\Config;
 
 class CheckoutRequestControllerTest extends TestCase
 {
@@ -65,10 +66,12 @@ class CheckoutRequestControllerTest extends TestCase
      */
     public function testReassignPartnerBarcode()
     {
+        putenv('PATRON_BARCODES_70620917062091=12345,678910');
+        $get = Config::get('PATRON_BARCODES_70620917062091', "");
+        echo "get: {$get} \n";
         $controller = $this->fakeCheckoutController;
-        $_ENV['PATRON_BARCODES_70620917062091'] = '12345,678910';
         $data = array('patronBarcode' => 70620917062091);
         $data = $controller->reassignPartnerBarcode($data);
-        self::assertContains($data['patronBarcode'], ['12345', '678910']);
+        $this->assertContains($data['patronBarcode'], ['12345', '678910']);
     }
 }

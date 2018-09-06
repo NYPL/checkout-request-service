@@ -84,7 +84,7 @@ class CheckoutRequestController extends ServiceController
             $data = $this->getRequest()->getParsedBody();
             APILogger::addDebug('POST request sent.', $data);
             // Need to randomize partner barcodes to avoid going over checkout limit
-            $data = self::reassignPartnerBarcode($data);
+            $data = $this->reassignPartnerBarcode($data);
             $checkoutRequest = new CheckoutRequest($data);
             // Exclude checkoutJobId and processed values used for non-cancellation responses.
             $checkoutRequest->addExcludedProperties(['checkoutJobId', 'processed']);
@@ -259,8 +259,7 @@ class CheckoutRequestController extends ServiceController
      * @param array $data should have a patronBarcode attribute, which will be randomly reassigned for partners
      * @return array will be a copy of the input with patronBarcode reassigned in case it was originally a partner barcode
      */
-
-    static function reassignPartnerBarcode($data)
+    public function reassignPartnerBarcode($data)
     {
       $key = "PATRON_BARCODES_{$data['patronBarcode']}";
       $barcodes = explode("," , Config::get($key, ""));

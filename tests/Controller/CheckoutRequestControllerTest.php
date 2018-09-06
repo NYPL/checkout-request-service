@@ -5,7 +5,6 @@ use NYPL\Services\Controller\CheckoutRequestController;
 use NYPL\Services\Test\Mocks\MockConfig;
 use NYPL\Services\Test\Mocks\MockService;
 use PHPUnit\Framework\TestCase;
-use NYPL\Starter\Config;
 
 class CheckoutRequestControllerTest extends TestCase
 {
@@ -66,7 +65,6 @@ class CheckoutRequestControllerTest extends TestCase
      */
     public function testReassignPartnerBarcode()
     {
-        putenv('PATRON_BARCODES_70620917062091=12345,678910');
         $controller = $this->fakeCheckoutController;
         $data = array('patronBarcode' => 70620917062091);
         $data = $controller->reassignPartnerBarcode($data);
@@ -75,7 +73,6 @@ class CheckoutRequestControllerTest extends TestCase
 
     public function testDoesNotReassignNYPLBarcode()
     {
-      putenv('PATRON_BARCODES_70620917062091=12345,678910');
       $controller = $this->fakeCheckoutController;
       $data = array('patronBarcode' => 314159);
       $data = $controller->reassignPartnerBarcode($data);

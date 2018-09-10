@@ -1,10 +1,37 @@
-language: php
+language:
+- php
+- node_js
 php:
-  - 7.1
+- 7.1
+node_js:
+- 6.1
+cache:
+  directories:
+  - node_modules
+install:
+- npm install
 script:
-  - composer update
-  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+- composer update
+- vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 after_success:
-  - vendor/bin/coveralls -v
-  - vendor/bin/phpcs -n --standard=PSR1,PSR2 src/
-  - vendor/bin/phpcbf src/
+- vendor/bin/coveralls -v
+- vendor/bin/phpcs -n --standard=PSR1,PSR2 src/
+- vendor/bin/phpcbf src/
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: npm run deploy-production
+  on:
+    branch: master
+- provider: script
+  skip_cleanup: true
+  script: npm run deploy-development
+  on:
+    branch: development
+after_deploy: echo 'Successfully executed deploy trigger for Checkout Request Service
+  on AWS'
+env:
+  global:
+  - secure: nsMR8o7rTsFYSQpuv0TcCH7prkmT63v9m15wslTjPfCIQRW9wLBFgXXxcIuMt8IprzqDxIJXmNm/ftvR082mMG/glB23aoBBqjnd3CFnRvFR5REZOuT7o5aWMGz2nx2WyrvNv9yjh5iQUL4xTBTbRJoSPZN2906g/RVNZthAP/MeivE8BcH5JNpXOZIHnB8zg75kWVrlTflZVcqn936DNRPyTqZtp3BPzG16ASz/O5tfPLyIPR1ZRcSEqQ8SCmqNan/UU8PRk4WWGbsTgqMKaJK1WCVra61q1mRNWOWX1sQog7BC5mxSSqIlAUJoiC0fxYUsQI5UJkPwwhQMu/vQajIkwqiWJteik8FTc0MNo3MBteYBmlqnZ7osxhBL8bFPnnsyL/HlUMBy1xg7Hs/aWPU/HP9/QJQBwx8Vps0oyVHNn0XAdES6gxJK1TH3gzHHBXq3HSSnxv/6pwAUjFgqKUMws7dDyZvUR59X/iL7rd1MYKZXGt4RbmP8JigsRuTBcKjRjcRbalhdsluenfuuvagKogX91eb1uZHawE/cM06V3dV38iViQhWjXLVsLvmKcpsJCitpK5fxbSmHWtP9sjyz8aKu7U9hEUTchHkPOTCt6Qqt7gpffLHbPl5zTMt/exjP/ojFDzjQ+RXrq807UDbIyoIiOE4tZ5y898ssfpE=
+  - secure: T/1FPx5duDowLXNCGYzdFTmyIrk4OSoKxGvPdEfKB1kvoZxDGKqeGu96RGoAmfKcmECHeB0vf8+/UJcaLkWRshhP8ollGTr3FnZtj+6CWyxEVudwnCi/GjSGWmIPRAw0bF6UQqFcedN+ubIKIBT3nJYPApE4mdYXrSPOp5usm9mcSr8/5VhNzCfMo7wQqtsQ5O7e+nPO3pg8HJUc8ulGWaCAFO4RHKlqO0U2jekMMp+ISSKx6DfRDwc6DznRfMHfAR74Z45oGpowgyv6Ql7b71u7+f74RlR1LOYkrtxZrnTRa2JbBQOLh0ynn5vOH9A323j3529aYV6DCNqlF7quU1x6GHNINaX5jV0T9/MRQRYglgHZKTNhMqjvKFnjgCHIQBiIbC6DQV9/gkGn057W/SNzxbK20ULxxMG34hxJL/jC5XwTznZbF43WpEB7kDgL/5qJscCPImvlahUFenbqWjTt/zFTkR7BDVhjAI06WXrVEgjOBaLFy9vADH66Ljulk/DU4F+DrK8ZlgtaYJKqTJ6V21dvMIikt+X+UGbVEed2E1uoj5X/p+j3yXbzjcI/GeA3DMC59wCPaXtNE3G6N8P3470YICXqmHDjbNT6mrc1d7raknKknT27CT/Vi61rABE7aRes1HiVhLgXBLMLIEqofwCMz1Jk5JG0PdbOEJE=
+  - secure: bMBoLf6u+Q7IYri8/WdPdScpEwOSUG5FcuYLuYSlmtPCj/YuSzIRzahy6ysVw1szLpR7JsXDRk0N5iHNN8riuVqmv92AB/+uj8Qg3siUL0N6oUVqFShevS8XrBR0LddNgkw1llnwRPBVfIHpOL9LioYvJOEN4jTV2KQZp7ZrNIiRsjBZUf0PIBwZ4Q/VVlFkVXe8+9QoU8lsrjG0ZP+WDrWHzdydxpqbCSNOPX6hsDbKEch+r86q846ASq5WIgH0pkNViHawqc/CnXjlrb7zxrNWex5yl++Kp2Vdj0EDF67hzf3G4Nx0bBGR6NPq69EVdWLfXHmhAYXfKDx7eSI09Kh59m0l7XN1jU0x1kwOLa3Lle4M0eu33su+faBKo1DNgTglmr1hqp34kIsDKC+g3WOZTVpotc9RgF5nbHLlooDFxrsuL20ycdgpukRvD/7uyvYrqz2db1E4mhb5KzAlYj8IA0hSksCwzuo8EQX1LEWlccQr/4AV+lHjYJRUV3XeuN0P4SH9qkoJyP8TuECxG+x4XNe/8W8SQW0/XnVjXYpvbsdVuMp5owgER70VBJQm9+Iss/lCKggI7LFIHo6Ox9yQWeyv3OlmlrktJQSu17l1f89BcwK0sB0mtUydfLRGwvmEf+bSrjcXRPhJcBeIaYQFbaM1UOC2rft/g0roavI=

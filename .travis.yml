@@ -21,11 +21,11 @@ after_success:
   - if [ '$TRAVIS_BRANCH' == 'master' ]; then ENVIRONMENT_NAME=production; fi
 deploy:
   - provider: script
-  skip_cleanup: true
-  script: "./scripts/travis-deploy.sh $ENVIRONMENT_NAME"
-  on:
-    all_branches: true
-    condition: "$ENVIRONMENT_NAME =~ ^(development|qa|production)$"
+    skip_cleanup: true
+    script: './scripts/travis-deploy.sh $ENVIRONMENT_NAME'
+    on:
+      all_branches: true
+      condition: '$ENVIRONMENT_NAME =~ ^(development|qa|production)$'
 after_deploy: echo 'Successfully executed deploy trigger for Checkout Request Service
   on AWS'
 env:

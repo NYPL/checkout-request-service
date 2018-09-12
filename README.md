@@ -138,6 +138,3 @@ or simply git push the `development` or `master` branch. The branch will be depl
 
 development => CheckinRequestService-development (nypl-sandbox)
 master => CheckinRequestService-production(nypl-digital-dev)
-
-We use `scripts/travis-deploy.sh` for Travis to run deployment. Make sure you have enabled `scripts/travis-deploy.sh` before commiting by run `chmod +x ./scripts/travis-deploy.sh`.
-

@@ -1,6 +1,6 @@
 {
   "name": "CheckoutRequestService",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Lambda for the NYPL Checkout Request Service",
   "main": "index.js",
   "scripts": {

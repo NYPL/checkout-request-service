@@ -59,4 +59,23 @@ class CheckoutRequestControllerTest extends TestCase
 
         self::assertSame(500, $response->getStatusCode());
     }
+
+    /**
+     * @covers NYPL\Services\Controller\CheckoutRequestController::reassignPartnerBarcode()
+     */
+    public function testReassignPartnerBarcode()
+    {
+        $controller = $this->fakeCheckoutController;
+        $data = array('patronBarcode' => 70620917062091);
+        $data = $controller->reassignPartnerBarcode($data);
+        $this->assertContains($data['patronBarcode'], ['12345', '678910']);
+    }
+
+    public function testDoesNotReassignNYPLBarcode()
+    {
+      $controller = $this->fakeCheckoutController;
+      $data = array('patronBarcode' => 314159);
+      $data = $controller->reassignPartnerBarcode($data);
+      $this->assertSame($data['patronBarcode'], 314159);
+    }
 }

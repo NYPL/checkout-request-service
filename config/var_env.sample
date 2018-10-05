@@ -18,3 +18,5 @@ API_BASE_URL=https://dev-platformdocs.nypl.org/api/v0.1/
 SWAGGER_SCHEME=http
 SWAGGER_GENERAL_URL=https://dev-platformdocs.nypl.org/docs/checkout-requests
 SWAGGER_HOST=dev-platformdocs.nypl.org
+PATRON_BARCODES_70620917062091=[list of comma delimited CUL barcodes. No spaces]
+PATRON_BARCODES_70620957062095=[list of comma delimited PUL barcodes. No spaces]

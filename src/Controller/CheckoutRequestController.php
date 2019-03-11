@@ -262,7 +262,7 @@ class CheckoutRequestController extends ServiceController
     public function reassignPartnerBarcode($data)
     {
       $key = "PATRON_BARCODES_{$data['patronBarcode']}";
-      $barcodes = explode("," , Config::get($key, ""));
+      $barcodes = explode("," , Config::get($key, "", true));
       $barcodes = array_filter($barcodes, function ($item) { return $item; });
       $numberOfPatronBarcodes = count($barcodes);
       if ($numberOfPatronBarcodes >= 1) {

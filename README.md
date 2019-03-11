@@ -27,9 +27,8 @@ This package adheres to [PSR-1](http://www.php-fig.org/psr/psr-1/),
 
 ## Requirements
 
-* Node.js >=6.0
+* Node.js 6.10
 * PHP >=7.0 
-  * [pdo_pdgsql](http://php.net/manual/en/ref.pdo-pgsql.php)
 
 Homebrew is highly recommended for PHP:
   * `brew install php71`
@@ -40,11 +39,6 @@ Homebrew is highly recommended for PHP:
 2. Install required dependencies.
    * Run `npm install` to install Node.js packages.
    * Run `composer install` to install PHP packages.
-   * If you have not already installed `node-lambda` as a global package, run `npm install -g node-lambda`.
-3. Setup [configuration files](#configuration).
-   * Copy the `.env.sample` file to `.env`.
-   * Copy `config/var_env.sample` to `config/var_development.env`.
-4. Replace sample values in `.env` and `config/var_development.env`.
 
 ## Configuration
 
@@ -52,7 +46,7 @@ Various files are used to configure and deploy the Lambda.
 
 ### .env
 
-`.env` is used *locally* for two purposes:
+`.env` is used for two purposes:
 
 1. By `node-lambda` for deploying to and configuring Lambda in *all* environments. 
    * You should use this file to configure the common settings for the Lambda 
@@ -140,3 +134,11 @@ or simply git push the `development` or `master` branch. The branch will be depl
 development => CheckinRequestService-development (nypl-sandbox)
 qa => CheckinRequestService-qa (nypl-digital-dev)
 master => CheckinRequestService-production (nypl-digital-dev)
+
+## Testing
+
+Unit tests can be run as follows:
+
+```
+vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+```

@@ -1,4 +1,5 @@
 composer.phar
+config/var_app.env
 config/var_app
 vendor/
 node_modules

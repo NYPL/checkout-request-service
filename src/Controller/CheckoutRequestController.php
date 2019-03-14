@@ -23,7 +23,64 @@ use NYPL\Starter\Config;
  */
 class CheckoutRequestController extends ServiceController
 {
+  /**
+   * @SWG\Post(
+   *     path="/v0.1/checkout-requests-sync",
+   *     summary="Process a checkout request",
+   *     tags={"checkout-requests-sync"},
+   *     operationId="processCheckoutRequest",
+   *     consumes={"application/json"},
+   *     produces={"application/json"},
+   *     @SWG\Parameter(
+   *         name="NewCheckoutRequest",
+   *         in="body",
+   *         description="Request object based on the included data model",
+   *         required=true,
+   *         @SWG\Schema(ref="#/definitions/NewCheckoutRequest")
+   *     ),
+   *     @SWG\Response(
+   *         response=200,
+   *         description="Successful operation",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestResponse")
+   *     ),
+   *     @SWG\Response(
+   *         response="401",
+   *         description="Unauthorized"
+   *     ),
+   *     @SWG\Response(
+   *         response="404",
+   *         description="Not found",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+   *     ),
+   *     @SWG\Response(
+   *         response="406",
+   *         description="Not accepted",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+   *     ),
+   *     @SWG\Response(
+   *         response="409",
+   *         description="Conflict",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+   *     ),
+   *     @SWG\Response(
+   *         response="500",
+   *         description="Generic server error",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+   *     ),
+   *     security={
+   *         {
+   *             "api_auth": {"openid offline_access api write:hold_request readwrite:hold_request"}
+   *         }
+   *     }
+   * )
+   *
+   * @throws APIException
+   * @return Response
+   */
 
+   public function createCheckoutRequestSync() {
+     return $this->createCheckoutRequest();
+   }
     /**
      * @SWG\Post(
      *     path="/v0.1/checkout-requests",

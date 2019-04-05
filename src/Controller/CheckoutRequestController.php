@@ -139,10 +139,10 @@ class CheckoutRequestController extends ServiceController
         $checkoutRequest->create();
 
         // Initiate a job for non-cancellation requests.
-        if (is_null($checkoutRequest->getJobId()) && $this->isUseJobService()) {
-            $checkoutRequest->setCheckoutJobId(JobService::generateJobId($this->isUseJobService()));
+        if (is_null($checkoutRequest->getCancelRequestId()) && $this->isUseJobService()) {
+            $checkoutRequest->setCheckoutJobId($checkoutRequest->getJobId());
             // Set jobId for proper responses for non-cancellation requests.
-            $checkoutRequest->setJobId($checkoutRequest->getCheckoutJobId());
+            // $checkoutRequest->setJobId($checkoutRequest->getCheckoutJobId());
             APILogger::addDebug(
                 'Initiating job via Job Service API ReCAP checkout request.',
                 ['checkoutJobID' => $checkoutRequest->getCheckoutJobId()]

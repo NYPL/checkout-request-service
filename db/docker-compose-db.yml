@@ -1,0 +1,17 @@
+version: '2'
+services:
+  checkout-request-service-db:
+    image: postgres:10.5-alpine
+    container_name: checkout-service-postgres-db
+    environment:
+    - POSTGRES_DB=checkout_requests
+    - POSTGRES_PASSWORD=localpasswordsimplepassword
+    ports:
+    - '15432:5432'
+    networks:
+      checkoutservice:
+    volumes:
+    - ./init-test-db.sql:/docker-entrypoint-initdb.d/init.sql
+
+networks:
+  checkoutservice:

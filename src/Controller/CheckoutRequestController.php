@@ -196,9 +196,11 @@ class CheckoutRequestController extends ServiceController
         $checkoutRequest->create();
 
         // Initiate a job for non-cancellation requests.
-        if (is_null($checkoutRequest->getJobId()) && $this->isUseJobService()) {
+        if (is_null($checkoutRequest->getCancelRequestId()) && $this->isUseJobService()) {
+            // Create a jobId and assign it to special checkoutJobId property
+            // (to signal that job should not be completed later in execution)
             $checkoutRequest->setCheckoutJobId(JobService::generateJobId($this->isUseJobService()));
-            // Set jobId for proper responses for non-cancellation requests.
+            // Copy jobId to jobId property (which is saved in db):
             $checkoutRequest->setJobId($checkoutRequest->getCheckoutJobId());
             APILogger::addDebug(
                 'Initiating job via Job Service API ReCAP checkout request.',
@@ -233,6 +235,8 @@ class CheckoutRequestController extends ServiceController
         );
 
         // Finish job processing for non-cancellation requests.
+        // Note: Unclear why we don't just check for null
+        // $checkoutRequest->getCancelRequestId() here:
         if (!is_null($checkoutRequest->getCheckoutJobId()) && $this->isUseJobService()) {
             APILogger::addDebug('Updating checkout job.', ['checkoutJobID' => $checkoutRequest->getCheckoutJobId()]);
             JobService::finishJob($checkoutRequest);
@@ -250,7 +254,7 @@ class CheckoutRequestController extends ServiceController
         $checkoutClient = new CheckoutClient();
         $checkoutClientResponse = $checkoutClient->buildCheckoutRequest($checkoutRequest);
 
-        APILogger::addDebug('API Response', $checkoutClientResponse);
+        APILogger::addDebug('NCIP response', $checkoutClientResponse);
 
         $checkoutRequest->addFilter(new Filter('id', $checkoutRequest->getId()));
         $checkoutRequest->read();

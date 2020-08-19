@@ -16,7 +16,7 @@
   "dependencies": {},
   "devDependencies": {
     "lib-for-node10-wrapped-php7-lambda-layer": "github:NYPL/lib-for-node10-wrapped-php7-lambda-layer#main",
-    "node-lambda": "0.12.0",
+    "node-lambda": "0.17.0",
     "phplint": "^2.0.1"
   }
 }

@@ -23,7 +23,64 @@ use NYPL\Starter\Config;
  */
 class CheckoutRequestController extends ServiceController
 {
+  /**
+   * @SWG\Post(
+   *     path="/v0.1/checkout-requests-sync",
+   *     summary="Process a checkout request",
+   *     tags={"checkout-requests-sync"},
+   *     operationId="processCheckoutRequest",
+   *     consumes={"application/json"},
+   *     produces={"application/json"},
+   *     @SWG\Parameter(
+   *         name="NewCheckoutRequest",
+   *         in="body",
+   *         description="Request object based on the included data model",
+   *         required=true,
+   *         @SWG\Schema(ref="#/definitions/NewCheckoutRequest")
+   *     ),
+   *     @SWG\Response(
+   *         response=200,
+   *         description="Successful operation",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestResponse")
+   *     ),
+   *     @SWG\Response(
+   *         response="401",
+   *         description="Unauthorized"
+   *     ),
+   *     @SWG\Response(
+   *         response="404",
+   *         description="Not found",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+   *     ),
+   *     @SWG\Response(
+   *         response="406",
+   *         description="Not accepted",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+   *     ),
+   *     @SWG\Response(
+   *         response="409",
+   *         description="Conflict",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+   *     ),
+   *     @SWG\Response(
+   *         response="500",
+   *         description="Generic server error",
+   *         @SWG\Schema(ref="#/definitions/CheckoutRequestErrorResponse")
+   *     ),
+   *     security={
+   *         {
+   *             "api_auth": {"openid offline_access api write:hold_request readwrite:hold_request"}
+   *         }
+   *     }
+   * )
+   *
+   * @throws APIException
+   * @return Response
+   */
 
+   public function createCheckoutRequestSync() {
+     return $this->createCheckoutRequest();
+   }
     /**
      * @SWG\Post(
      *     path="/v0.1/checkout-requests",
@@ -139,9 +196,11 @@ class CheckoutRequestController extends ServiceController
         $checkoutRequest->create();
 
         // Initiate a job for non-cancellation requests.
-        if (is_null($checkoutRequest->getJobId()) && $this->isUseJobService()) {
+        if (is_null($checkoutRequest->getCancelRequestId()) && $this->isUseJobService()) {
+            // Create a jobId and assign it to special checkoutJobId property
+            // (to signal that job should not be completed later in execution)
             $checkoutRequest->setCheckoutJobId(JobService::generateJobId($this->isUseJobService()));
-            // Set jobId for proper responses for non-cancellation requests.
+            // Copy jobId to jobId property (which is saved in db):
             $checkoutRequest->setJobId($checkoutRequest->getCheckoutJobId());
             APILogger::addDebug(
                 'Initiating job via Job Service API ReCAP checkout request.',
@@ -176,6 +235,8 @@ class CheckoutRequestController extends ServiceController
         );
 
         // Finish job processing for non-cancellation requests.
+        // Note: Unclear why we don't just check for null
+        // $checkoutRequest->getCancelRequestId() here:
         if (!is_null($checkoutRequest->getCheckoutJobId()) && $this->isUseJobService()) {
             APILogger::addDebug('Updating checkout job.', ['checkoutJobID' => $checkoutRequest->getCheckoutJobId()]);
             JobService::finishJob($checkoutRequest);
@@ -193,7 +254,7 @@ class CheckoutRequestController extends ServiceController
         $checkoutClient = new CheckoutClient();
         $checkoutClientResponse = $checkoutClient->buildCheckoutRequest($checkoutRequest);
 
-        APILogger::addDebug('API Response', $checkoutClientResponse);
+        APILogger::addDebug('NCIP response', $checkoutClientResponse);
 
         $checkoutRequest->addFilter(new Filter('id', $checkoutRequest->getId()));
         $checkoutRequest->read();

@@ -130,6 +130,10 @@ $service->get("/docs", SwaggerGenerator::class);
 
 A successful response for checking out will return a status code of `202`. However, if you continue to check out the same item — even it has been checked out — the response will still be succesful but only with a status code of `208`.
 
+## Contributing
+
+This repo uses the [Development-QA-Main Git Workflow](https://github.com/NYPL/engineering-general/tree/master/standards/git-workflow#development-qa-main)
+
 ## Deployment
 
 Before deploying, ensure [configuration files](#configuration) have been properly set up:

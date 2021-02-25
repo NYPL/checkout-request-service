@@ -1,5 +1,5 @@
 {
-  "name": "nypl-checkout-request-service",
+  "name": "nypl/checkout-request-service",
   "description": "NYPL Checkout Request Service Package",
   "require": {
     "nypl/microservice-starter": "1.1.19",
